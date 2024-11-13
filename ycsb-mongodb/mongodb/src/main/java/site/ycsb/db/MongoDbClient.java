@@ -442,7 +442,7 @@ public class MongoDbClient extends DB {
             compressibility = Float.parseFloat(compressibilityString);
 
             // Set connectionpool to size of ycsb thread pool
-            final String maxConnections = props.getProperty("threadcount", "100");
+            final int threads = Integer.parseInt(props.getProperty("threadcount"));
 
             String writeConcernType = props.getProperty("mongodb.writeConcern",
                     "acknowledged").toLowerCase();
@@ -520,25 +520,20 @@ public class MongoDbClient extends DB {
             try {
                 MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder();
                 // Need to use a larger connection pool to talk to mongocryptd/keyvault
-                if (use_encryption) {
-                    settingsBuilder.applyToConnectionPoolSettings(builder -> builder.maxSize(Integer.parseInt(maxConnections) * 3));
-                } else {
-                    settingsBuilder.applyToConnectionPoolSettings(builder -> builder.maxSize(Integer.parseInt(maxConnections)));
-                }
                 settingsBuilder.writeConcern(writeConcern);
                 settingsBuilder.readPreference(readPreference);
 
                 String userPassword = username.equals("") ? "" : username + (password.equals("") ? "" : ":" + password) + "@";
 
                 String[] server = urls.split("\\|"); // split on the "|" character
-                mongo = new MongoClient[server.length];
-                db = new MongoDatabase[server.length];
+                mongo = new MongoClient[threads];
+                db = new MongoDatabase[threads];
 
-                for (int i=0; i<server.length; i++) {
+                for (int i=0; i<threads; i++) {
                    // If the URI does not contain credentials, but they are provided in the properties, append them to the URI
-                   String url= server[i].contains("@")
-                            ? server[i]
-                            : userPassword.equals("") ? server[i] : server[i].replace("://","://"+userPassword);
+                   String url= server[0].contains("@")
+                            ? server[0]
+                            : userPassword.equals("") ? server[0] : server[0].replace("://","://"+userPassword);
                    if ( i==0 && use_encryption) {
                        AutoEncryptionSettings autoEncryptionSettings = generateEncryptionSettings(url, props);
                        settingsBuilder.autoEncryptionSettings(autoEncryptionSettings);
