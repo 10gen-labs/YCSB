@@ -65,6 +65,7 @@
 
   <modules>
     <module>core</module>
+    <module>jdbc</module>
     <module>mongodb</module>
     <!--<module>distribution</module>-->
   </modules>
