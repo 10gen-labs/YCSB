@@ -22,7 +22,7 @@ LICENSE file.
     <groupId>site.ycsb</groupId>
     <artifactId>binding-parent</artifactId>
     <version>0.18.0-SNAPSHOT</version>
-    <relativePath>../binding-parent</relativePath>
+    <!-- <relativePath>../binding-parent</relativePath> -->
   </parent>
   
   <artifactId>jdbc-binding</artifactId>
