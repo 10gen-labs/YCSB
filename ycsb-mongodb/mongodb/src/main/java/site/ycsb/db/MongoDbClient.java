@@ -93,7 +93,7 @@ public class MongoDbClient extends DB {
 
     private static MongoDatabase[] db;
 
-    private static int serverCounter = 0;
+    private static long serverCounter = 0;
 
     /** The default write concern for the test. */
     private static WriteConcern writeConcern;
@@ -601,7 +601,7 @@ public class MongoDbClient extends DB {
     @Override
     public Status delete(String table, String key) {
         try {
-            MongoCollection<Document> collection = db[serverCounter++%db.length].getCollection(table);
+            MongoCollection<Document> collection = db[Math.toIntExact(serverCounter++%db.length)].getCollection(table);
             Document q = new Document("_id", key);
             collection.deleteMany(q);
             return Status.OK;
@@ -625,7 +625,7 @@ public class MongoDbClient extends DB {
     @Override
     public Status insert(String table, String key,
             Map<String, ByteIterator> values) {
-        MongoCollection<Document> collection = db[serverCounter++%db.length].getCollection(table);
+        MongoCollection<Document> collection = db[Math.toIntExact(serverCounter++%db.length)].getCollection(table);
         Document r = new Document("_id", key);
         for (String k : values.keySet()) {
             byte[] data = overrideDataIfDiscrete(k, values.get(k).toArray());
@@ -681,7 +681,7 @@ public class MongoDbClient extends DB {
     public Status read(String table, String key, Set<String> fields,
             Map<String, ByteIterator> result) {
         try {
-            MongoCollection<Document> collection = db[serverCounter++%db.length].getCollection(table);
+            MongoCollection<Document> collection = db[Math.toIntExact(serverCounter++%db.length)].getCollection(table);
             Document q = new Document("_id", key);
             Document fieldsToReturn;
 
@@ -725,7 +725,7 @@ public class MongoDbClient extends DB {
     public Status update(String table, String key,
             Map<String, ByteIterator> values) {
         try {
-            MongoCollection<Document> collection = db[serverCounter++%db.length].getCollection(table);
+            MongoCollection<Document> collection = db[Math.toIntExact(serverCounter++%db.length)].getCollection(table);
             Document q = new Document("_id", key);
             Document u = new Document();
             Document fieldsToSet = new Document();
@@ -766,7 +766,7 @@ public class MongoDbClient extends DB {
             Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
         MongoCursor<Document> cursor = null;
         try {
-            MongoCollection<Document> collection = db[serverCounter++%db.length].getCollection(table);
+            MongoCollection<Document> collection = db[Math.toIntExact(serverCounter++%db.length)].getCollection(table);
             Document fieldsToReturn = null;
             // { "_id":{"$gte":startKey, "$lte":{"appId":key+"\uFFFF"}} }
             Document scanRange = new Document("$gte", startkey);
